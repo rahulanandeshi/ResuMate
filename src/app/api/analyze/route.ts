@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { AnalyzeRequest, AnalyzeResponse, APIError } from "@/types/resume";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 function buildPrompt(resumeText: string, jobDescription?: string): string {
   return `You are a helpful assistant that analyzes resumes and job descriptions.
 
@@ -57,6 +53,11 @@ Respond ONLY with valid JSON. Do not include any other text or markdown formatti
 
 export async function POST(request: NextRequest) {
   try {
+    // Initialize OpenAI client inside the handler to avoid build-time errors
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
     const body: AnalyzeRequest = await request.json();
 
     if (!body.resumeText || body.resumeText.trim().length === 0) {
